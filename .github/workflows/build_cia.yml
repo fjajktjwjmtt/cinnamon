@@ -1,4 +1,4 @@
-name: Build 3DS Runner & Tools
+name: Build 3DS Runner
 
 on:
   push:
@@ -24,12 +24,7 @@ jobs:
           apt-get update
           apt-get install -y cmake build-essential
 
-      - name: Build 3DS Preprocessor Tool
-        run: |
-          cmake -S tools/n3ds-preprocess -B build/n3ds-preprocess -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/n3ds-preprocess
-
-      - name: Build 3DS Runner (.3dsx)
+      - name: Build 3DS Runner & Preprocessor
         env:
           DEVKITPRO: /opt/devkitpro
           DEVKITARM: /opt/devkitpro/devkitARM
@@ -48,4 +43,4 @@ jobs:
           path: |
             build/n3ds/*.3dsx
             build/n3ds/*.smdh
-            build/n3ds-preprocess/n3ds-preprocess
+            build/n3ds/**/n3ds-preprocess
