@@ -24,23 +24,22 @@ jobs:
           apt-get update
           apt-get install -y cmake build-essential
 
-      - name: Build 3DS Runner & Preprocessor
+      - name: Build 3DS Runner (.3dsx)
         env:
           DEVKITPRO: /opt/devkitpro
           DEVKITARM: /opt/devkitpro/devkitARM
         run: |
-          cmake -S . -B build/n3ds \
+          cmake -S . -B build/3ds \
             -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
-            -DPLATFORM=n3ds \
+            -DPLATFORM=3ds \
             -DCMAKE_BUILD_TYPE=Release
           
-          cmake --build build/n3ds
+          cmake --build build/3ds
 
       - name: Upload 3DS Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cinnamon-3ds-package
+          name: cinnamon-3ds
           path: |
-            build/n3ds/*.3dsx
-            build/n3ds/*.smdh
-            build/n3ds/**/n3ds-preprocess
+            build/3ds/*.3dsx
+            build/3ds/*.smdh
