@@ -16,17 +16,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-      - name: Install Host Tools & Dependencies
+      - name: Install Host Tools
         run: |
           apt-get update && apt-get install -y \
             cmake \
             build-essential
-
-      - name: Build Host Preprocessor
-        run: |
-          cmake -S tools/n3ds-preprocess -B build/n3ds-preprocess -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/n3ds-preprocess
 
       - name: Build 3DS Runner (.3dsx)
         run: |
@@ -42,3 +39,4 @@ jobs:
           path: |
             build/n3ds/*.3dsx
             build/n3ds/*.smdh
+            build/n3ds/tools/n3ds/preprocess/n3ds-preprocess
