@@ -19,26 +19,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Build Tools & Dependencies
+      - name: Install 3DS Tools (makerom & bannertool)
         run: |
-          apt-get update
-          apt-get install -y make cmake build-essential wget unzip
-
-      - name: Download 3DS Packaging Tools (makerom & bannertool)
-        run: |
-          mkdir -p /tmp/tools
-          
-          # makerom の取得
-          wget -q https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18.3/makerom-v0.18.3-ubuntu_x86_64.zip -O /tmp/tools/makerom.zip
-          unzip -o /tmp/tools/makerom.zip -d /usr/local/bin/
-          
-          # bannertool の取得
-          wget -q https://github.com/carstene1ns/3ds-bannertool/releases/download/v1.2.0/bannertool-v1.2.0-ubuntu_x86_64.zip -O /tmp/tools/bannertool.zip || true
-          if [ -f /tmp/tools/bannertool.zip ]; then
-            unzip -o /tmp/tools/bannertool.zip -d /usr/local/bin/
-          fi
-
-          chmod +x /usr/local/bin/makerom /usr/local/bin/bannertool 2>/dev/null || true
+          dkp-pacman -Sy --noconfirm 3ds-tools
 
       - name: Build 3DS Runner
         run: |
