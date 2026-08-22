@@ -33,7 +33,6 @@ jobs:
         run: |
           cmake -S . -B build/3ds \
             -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
-            -DPLATFORM=3DS \
             -DCMAKE_BUILD_TYPE=Release
           
           cmake --build build/3ds
@@ -43,7 +42,6 @@ jobs:
           PATH: /opt/devkitpro/tools/bin:/opt/devkitpro/devkitARM/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         run: |
           cd build/3ds
-          # 生成された.3dsxと.smdhからCIAをパッケージング
           3DSX_FILE=$(ls *.3dsx 2>/dev/null | head -n 1)
           SMDH_FILE=$(ls *.smdh 2>/dev/null | head -n 1)
           
