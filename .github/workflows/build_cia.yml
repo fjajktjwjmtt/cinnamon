@@ -19,20 +19,37 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install 3DS Dev Tools
+      - name: Install 3DS Toolchain & Packaging Tools
         run: |
+          apt-get update
+          apt-get install -y cmake build-essential
           dkp-pacman -Syu --noconfirm 3ds-dev
 
-      - name: Build 3DS Runner
+      - name: Build 3DS Runner (.3dsx)
+        env:
+          DEVKITPRO: /opt/devkitpro
+          DEVKITARM: /opt/devkitpro/devkitARM
+          PATH: /opt/devkitpro/tools/bin:/opt/devkitpro/devkitARM/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         run: |
-          make 3ds
+          cmake -S . -B build/3ds \
+            -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
+            -DPLATFORM=3DS \
+            -DCMAKE_BUILD_TYPE=Release
+          
+          cmake --build build/3ds
 
       - name: Package to CIA
+        env:
+          PATH: /opt/devkitpro/tools/bin:/opt/devkitpro/devkitARM/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         run: |
-          cd build/n3ds
-          if [ -f cinnamon.3dsx ]; then
-            if [ -f cinnamon.smdh ]; then
-              makerom -f cia -o cinnamon.cia -target t -exefslogo -icon cinnamon.smdh
+          cd build/3ds
+          # 生成された.3dsxと.smdhからCIAをパッケージング
+          3DSX_FILE=$(ls *.3dsx 2>/dev/null | head -n 1)
+          SMDH_FILE=$(ls *.smdh 2>/dev/null | head -n 1)
+          
+          if [ -n "$3DSX_FILE" ]; then
+            if [ -n "$SMDH_FILE" ]; then
+              makerom -f cia -o cinnamon.cia -target t -exefslogo -icon "$SMDH_FILE"
             else
               makerom -f cia -o cinnamon.cia -target t -exefslogo
             fi
@@ -43,6 +60,6 @@ jobs:
         with:
           name: cinnamon-3ds-package
           path: |
-            build/n3ds/*.3dsx
-            build/n3ds/*.cia
-            build/n3ds/*.smdh
+            build/3ds/*.3dsx
+            build/3ds/*.cia
+            build/3ds/*.smdh
