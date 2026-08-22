@@ -19,9 +19,9 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install 3DS Tools (makerom & bannertool)
+      - name: Install 3DS Dev Tools
         run: |
-          dkp-pacman -Sy --noconfirm 3ds-tools
+          dkp-pacman -Syu --noconfirm 3ds-dev
 
       - name: Build 3DS Runner
         run: |
