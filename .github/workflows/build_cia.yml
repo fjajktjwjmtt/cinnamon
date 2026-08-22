@@ -1,3 +1,5 @@
+大変失礼いたしました！なぜかコードブロックが消えてしまっていました。
+明日の朝、そのままコピペして使える .github/workflows/build-3ds.yml です。今夜はこれだけセットしてゆっくり休んでください！
 name: Build 3DS Runner & CIA
 
 on:
@@ -31,10 +33,7 @@ jobs:
           DEVKITARM: /opt/devkitpro/devkitARM
           PATH: /opt/devkitpro/tools/bin:/opt/devkitpro/devkitARM/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         run: |
-          cmake -S . -B build/3ds \
-            -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
-            -DCMAKE_BUILD_TYPE=Release
-          
+          arm-none-eabi-cmake -S . -B build/3ds -DPLATFORM=3ds -DCMAKE_BUILD_TYPE=Release
           cmake --build build/3ds
 
       - name: Package to CIA
@@ -61,3 +60,4 @@ jobs:
             build/3ds/*.3dsx
             build/3ds/*.cia
             build/3ds/*.smdh
+
