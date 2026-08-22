@@ -26,7 +26,7 @@ jobs:
 
       - name: Build 3DS Runner
         run: |
-          cmake -S . -B build/3ds -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DPLATFORM=3DS -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build/3ds -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DPLATFORM=N3DS -DCMAKE_BUILD_TYPE=Release
           cmake --build build/3ds
 
       - name: Upload 3DS Artifacts
