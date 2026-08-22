@@ -1,4 +1,4 @@
-name: Build 3DS Runner
+name: Build 3DS Runner & CIA
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-n3ds:
+  build-3ds:
     runs-on: ubuntu-latest
     container:
       image: devkitpro/devkitarm:latest
@@ -19,25 +19,44 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Host Tools
+      - name: Install Build Tools & Dependencies
         run: |
           apt-get update
-          apt-get install -y cmake build-essential
+          apt-get install -y make cmake build-essential wget
 
-      - name: Build 3DS Runner (.3dsx)
-        env:
-          DEVKITPRO: /opt/devkitpro
-          DEVKITARM: /opt/devkitpro/devkitARM
-          # arm-none-eabi-cmake が存在するパスを強制的に通す
-          PATH: /opt/devkitpro/tools/bin:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/portlibs/3ds/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - name: Download 3DS Packaging Tools (makerom & bannertool)
         run: |
-          arm-none-eabi-cmake -S . -B build/n3ds -DPLATFORM=n3ds -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/n3ds
+          mkdir -p /tmp/tools
+          # GitHub Releasesからバイナリを取得
+          wget -q https://github.com/3DS-Development-Community/makerom/releases/download/v0.18.4/makerom-v0.18.4-ubuntu_x86_64.zip -O /tmp/tools/makerom.zip
+          wget -q https://github.com/Steveice10/bannertool/releases/download/1.2.0/bannertool.zip -O /tmp/tools/bannertool.zip
+          
+          unzip -o /tmp/tools/makerom.zip -d /usr/local/bin/
+          unzip -o /tmp/tools/bannertool.zip -d /tmp/tools/
+          
+          mv /tmp/tools/linux-x86_64/bannertool /usr/local/bin/bannertool 2>/dev/null || mv /tmp/tools/bannertool /usr/local/bin/bannertool
+          chmod +x /usr/local/bin/makerom /usr/local/bin/bannertool
 
-      - name: Upload 3DS Artifacts
+      - name: Build 3DS Runner
+        run: |
+          make 3ds
+
+      - name: Package to CIA
+        run: |
+          cd build/n3ds
+          if [ -f cinnamon.3dsx ]; then
+            if [ -f cinnamon.smdh ]; then
+              makerom -f cia -o cinnamon.cia -target t -exefslogo -icon cinnamon.smdh
+            else
+              makerom -f cia -o cinnamon.cia -target t -exefslogo
+            fi
+          fi
+
+      - name: Upload 3DS Artifacts (.3dsx & .cia)
         uses: actions/upload-artifact@v4
         with:
-          name: cinnamon-3ds
+          name: cinnamon-3ds-package
           path: |
             build/n3ds/*.3dsx
+            build/n3ds/*.cia
             build/n3ds/*.smdh
