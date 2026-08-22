@@ -22,20 +22,23 @@ jobs:
       - name: Install Build Tools & Dependencies
         run: |
           apt-get update
-          apt-get install -y make cmake build-essential wget
+          apt-get install -y make cmake build-essential wget unzip
 
       - name: Download 3DS Packaging Tools (makerom & bannertool)
         run: |
           mkdir -p /tmp/tools
-          # GitHub Releasesからバイナリを取得
-          wget -q https://github.com/3DS-Development-Community/makerom/releases/download/v0.18.4/makerom-v0.18.4-ubuntu_x86_64.zip -O /tmp/tools/makerom.zip
-          wget -q https://github.com/Steveice10/bannertool/releases/download/1.2.0/bannertool.zip -O /tmp/tools/bannertool.zip
           
+          # makerom の取得
+          wget -q https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18.3/makerom-v0.18.3-ubuntu_x86_64.zip -O /tmp/tools/makerom.zip
           unzip -o /tmp/tools/makerom.zip -d /usr/local/bin/
-          unzip -o /tmp/tools/bannertool.zip -d /tmp/tools/
           
-          mv /tmp/tools/linux-x86_64/bannertool /usr/local/bin/bannertool 2>/dev/null || mv /tmp/tools/bannertool /usr/local/bin/bannertool
-          chmod +x /usr/local/bin/makerom /usr/local/bin/bannertool
+          # bannertool の取得
+          wget -q https://github.com/carstene1ns/3ds-bannertool/releases/download/v1.2.0/bannertool-v1.2.0-ubuntu_x86_64.zip -O /tmp/tools/bannertool.zip || true
+          if [ -f /tmp/tools/bannertool.zip ]; then
+            unzip -o /tmp/tools/bannertool.zip -d /usr/local/bin/
+          fi
+
+          chmod +x /usr/local/bin/makerom /usr/local/bin/bannertool 2>/dev/null || true
 
       - name: Build 3DS Runner
         run: |
