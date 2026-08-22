@@ -1,0 +1,63 @@
+name: Build 3DS Runner & CIA
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-n3ds:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Host Tools & Dependencies
+        run: |
+          apt-get update && apt-get install -y \
+            cmake \
+            build-essential
+
+      - name: Install 3DS Packaging Tools (makerom, bannertool)
+        run: |
+          dkp-pacman -Syu --noconfirm 3ds-tools bannertool makerom
+
+      - name: Build Host Preprocessor
+        run: |
+          cmake -S tools/n3ds-preprocess -B build/n3ds-preprocess -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/n3ds-preprocess
+
+      - name: Build 3DS Runner
+        run: |
+          . /opt/devkitpro/devkitARM.sh
+          
+          arm-none-eabi-cmake -S . -B build/n3ds -DPLATFORM=n3ds -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/n3ds
+
+      - name: Package to CIA
+        run: |
+          . /opt/devkitpro/devkitARM.sh
+          cd build/n3ds
+
+          # 生成された .3dsx をもとに makerom で .cia を作成
+          if [ -f cinnamon.3dsx ]; then
+            if [ -f cinnamon.smdh ]; then
+              makerom -f cia -o cinnamon.cia -target t -exefslogo -icon cinnamon.smdh || true
+            else
+              makerom -f cia -o cinnamon.cia -target t -exefslogo || true
+            fi
+          fi
+
+      - name: Upload 3DS Artifacts (.3dsx & .cia)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinnamon-3ds-package
+          path: |
+            build/n3ds/*.3dsx
+            build/n3ds/*.cia
+            build/n3ds/*.smdh
