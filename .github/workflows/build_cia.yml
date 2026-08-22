@@ -30,6 +30,9 @@ jobs:
           cmake --build build/n3ds-preprocess
 
       - name: Build 3DS Runner (.3dsx)
+        env:
+          DEVKITPRO: /opt/devkitpro
+          DEVKITARM: /opt/devkitpro/devkitARM
         run: |
           cmake -S . -B build/n3ds \
             -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
