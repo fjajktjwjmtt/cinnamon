@@ -1,4 +1,4 @@
-name: Build 3DS Runner
+name: Build 3DS Runner & Tools
 
 on:
   push:
@@ -24,15 +24,25 @@ jobs:
           apt-get update
           apt-get install -y cmake build-essential
 
-      - name: Build 3DS Runner
+      - name: Build 3DS Preprocessor Tool
         run: |
-          cmake -S . -B build/3ds -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake -DPLATFORM=N3DS -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/3ds
+          cmake -S tools/n3ds-preprocess -B build/n3ds-preprocess -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/n3ds-preprocess
+
+      - name: Build 3DS Runner (.3dsx)
+        run: |
+          cmake -S . -B build/n3ds \
+            -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
+            -DPLATFORM=n3ds \
+            -DCMAKE_BUILD_TYPE=Release
+          
+          cmake --build build/n3ds
 
       - name: Upload 3DS Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cinnamon-3ds
+          name: cinnamon-3ds-package
           path: |
-            build/3ds/*.3dsx
-            build/3ds/*.smdh
+            build/n3ds/*.3dsx
+            build/n3ds/*.smdh
+            build/n3ds-preprocess/n3ds-preprocess
