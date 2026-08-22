@@ -28,18 +28,16 @@ jobs:
         env:
           DEVKITPRO: /opt/devkitpro
           DEVKITARM: /opt/devkitpro/devkitARM
+          # arm-none-eabi-cmake が存在するパスを強制的に通す
+          PATH: /opt/devkitpro/tools/bin:/opt/devkitpro/devkitARM/bin:/opt/devkitpro/portlibs/3ds/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         run: |
-          cmake -S . -B build/3ds \
-            -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake \
-            -DPLATFORM=3ds \
-            -DCMAKE_BUILD_TYPE=Release
-          
-          cmake --build build/3ds
+          arm-none-eabi-cmake -S . -B build/n3ds -DPLATFORM=n3ds -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/n3ds
 
       - name: Upload 3DS Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cinnamon-3ds
           path: |
-            build/3ds/*.3dsx
-            build/3ds/*.smdh
+            build/n3ds/*.3dsx
+            build/n3ds/*.smdh
