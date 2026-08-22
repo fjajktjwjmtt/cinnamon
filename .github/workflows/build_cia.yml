@@ -27,8 +27,6 @@ jobs:
 
       - name: Build 3DS Runner (.3dsx)
         run: |
-          . /opt/devkitpro/devkitARM.sh
-          
           arm-none-eabi-cmake -S . -B build/n3ds -DPLATFORM=n3ds -DCMAKE_BUILD_TYPE=Release
           cmake --build build/n3ds
 
@@ -39,4 +37,3 @@ jobs:
           path: |
             build/n3ds/*.3dsx
             build/n3ds/*.smdh
-            build/n3ds/tools/n3ds/preprocess/n3ds-preprocess
